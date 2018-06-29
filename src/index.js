@@ -13,6 +13,7 @@ class Rule extends React.Component {
   handleDescriptionChange(event) {
     let newState = Object.assign(this.state, {description: event.target.value});
     this.setState(newState);
+    this.props.update(this.props.index, this.state);
   }
 
   render() {
@@ -49,14 +50,14 @@ class CustomMapping extends React.Component {
   updateRule(i, rule) {
     let newRules = this.state.rules.slice();
     newRules[i] = rule;
-    newRules[i].description = "New Rule!";
     let newState = Object.assign(this.state, {rules: newRules});
     this.setState(newState);
   }
 
   addRule() {
+    const ts = Date.now();
     let newRules = this.state.rules.slice();
-    let rule = {description: "New Rule"};
+    let rule = {description: "New Rule", key: ts};
     newRules.push(rule);
     let newState = Object.assign(this.state, {rules: newRules});
     this.setState(newState);
@@ -76,8 +77,9 @@ class CustomMapping extends React.Component {
 
   render() {
     const rules = this.state.rules.map((rule, i) =>
-      <li><Rule state={rule} index={i} update={this.updateRule} delete={this.deleteRule} /></li>
+      <li key={rule.key}><Rule state={rule} index={i} update={this.updateRule} delete={this.deleteRule} /></li>
     );
+    console.log(JSON.stringify(this.state));
     return (
       <div className="custom-mapping outlined">
         <label className="form-label">Title</label><input className="form-input" value={this.state.title} onChange={this.handleTitleChange} /><br/>
