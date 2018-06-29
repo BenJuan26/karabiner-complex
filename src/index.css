@@ -1,0 +1,36 @@
+body {
+    font: 14px sans-serif;
+}
+
+.outlined {
+    border-style: solid;
+    border-width: 1px;
+    padding: 8px;
+}
+
+.form-label {
+    margin: 4px;
+}
+
+.form-input {
+    margin: 4px;
+}
+
+.form-button {
+    margin: 4px;
+}
+
+ul {
+    padding: 0;
+    margin: 14px 10px;
+}
+
+li {
+    display: block;
+    margin: 2px 0px;
+}
+
+.delete-button {
+    display: block;
+    float: right;
+}
