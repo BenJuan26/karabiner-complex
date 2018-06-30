@@ -34,3 +34,7 @@ li {
     display: block;
     float: right;
 }
+
+h3 {
+    margin: 4px;
+}
