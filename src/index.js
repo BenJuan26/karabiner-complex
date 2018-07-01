@@ -13,24 +13,40 @@ class From extends React.Component {
     let possibleKeys = ["key_code", "consumer_key_code", "pointing_button", "any"];
     for (let key of possibleKeys) {
       if (key !== event.target.value) {
-        console.log("Deleting " + key);
-        // delete newState[key];
         newState[key] = null;
       } else if (key === "any") {
-        console.log("Adding " + key);
         newState[key] = {key: "key_code"};
       } else {
-        console.log("Adding " + key);
-        newState[key] = {key: ""};
+        newState[key] = "";
       }
     }
     console.log(JSON.stringify(newState));
     this.setState(newState, () => console.log(JSON.stringify(this.state)));
   }
 
+  updateKeyCode(event) {
+    let newState = Object.assign({}, this.state);
+    let possibleKeys = ["key_code", "consumer_key_code", "pointing_button", "any"];
+    for (let key of possibleKeys) {
+      if (this.state[key] != null) {
+        newState[key] = event.target.value;
+      }
+    }
+    this.setState(newState);
+  }
+
   render() {
+    console.log(JSON.stringify(this.state));
+    let actualKey = "";
+    let possibleKeys = ["key_code", "consumer_key_code", "pointing_button", "any"];
+    for (let key of possibleKeys) {
+      if (this.state[key] != null) {
+        actualKey = key;
+      }
+    }
+
     let keyInput = null;
-    if (this.state.any) {
+    if (actualKey === "any") {
       keyInput = (
         <select>
           <option value="key_code">Key Code</option>
@@ -39,7 +55,13 @@ class From extends React.Component {
         </select>
       )
     } else {
-      keyInput = <input className="form-input" placeholder="Key code" />
+      keyInput =
+        <input
+          className="form-input"
+          placeholder="Key code"
+          value={this.state[actualKey].key}
+          onChange={this.updateKeyCode.bind(this)}
+        />
     }
     return (
       <div className="from outlined">
@@ -127,7 +149,8 @@ class CustomMapping extends React.Component {
     };
     let manipulators = {};
     manipulators[Date.now()] = {
-      description: "New Manipulator"
+      description: "New Manipulator",
+      key_code: ""
     };
     this.state.rules[Date.now()] = {
       description: "New Rule",
