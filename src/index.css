@@ -20,9 +20,13 @@ body {
     margin: 4px;
 }
 
+.form-select {
+    margin: 4px;
+}
+
 ul {
     padding: 0;
-    margin: 14px 10px;
+    margin: 4px;
 }
 
 li {

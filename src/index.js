@@ -5,7 +5,9 @@ import './index.css';
 class From extends React.Component {
   constructor(props) {
     super(props);
-    this.state = props.state;
+    this.state = {
+      key_code: ""
+    };
   }
 
   handleKeyChange(event) {
@@ -15,13 +17,19 @@ class From extends React.Component {
       if (key !== event.target.value) {
         newState[key] = null;
       } else if (key === "any") {
-        newState[key] = {key: "key_code"};
+        newState[key] = "key_code";
       } else {
         newState[key] = "";
       }
     }
     console.log(JSON.stringify(newState));
-    this.setState(newState, () => console.log(JSON.stringify(this.state)));
+    this.setState(newState);
+  }
+
+  handleAnyKeyChange(event) {
+    let newState = Object.assign({}, this.state);
+    newState.any = event.target.value;
+    this.setState(newState);
   }
 
   updateKeyCode(event) {
@@ -48,7 +56,7 @@ class From extends React.Component {
     let keyInput = null;
     if (actualKey === "any") {
       keyInput = (
-        <select>
+        <select className="form-select" onChange={this.handleAnyKeyChange.bind(this)} >
           <option value="key_code">Key Code</option>
           <option value="consumer_key_code">Consumer Key Code</option>
           <option value="pointing_button">Pointing Button</option>
@@ -66,7 +74,7 @@ class From extends React.Component {
     return (
       <div className="from outlined">
         <h3>From</h3>
-        <select onChange={this.handleKeyChange.bind(this)}>
+        <select className="form-select" onChange={this.handleKeyChange.bind(this)}>
           <option value="key_code">Key Code</option>
           <option value="consumer_key_code">Consumer Key Code</option>
           <option value="pointing_button">Pointing Button</option>
@@ -81,16 +89,30 @@ class From extends React.Component {
 class Manipulator extends React.Component {
   constructor(props) {
     super(props);
-    this.state = props.state;
+    this.state = {
+      description: "",
+    };
+  }
+
+  handleDescriptionChange(event) {
+    let newState = Object.assign({}, this.state);
+    newState.description = event.target.value;
+    this.setState(newState);
   }
 
   render() {
     return (
       <div className="manipulator outlined">
+        <button className="delete-button" onClick={this.props.delete}>&times;</button>
         <h3>Manipulator</h3>
         <label className="form-label">Description</label>
-        <input className="form-input" value={this.state.description} /><br/>
-        <From state={this.props.state} />
+        <input
+          className="form-input"
+          value={this.state.description}
+          placeholder="Manipulator description"
+          onChange={this.handleDescriptionChange.bind(this)}
+        /><br/>
+        <From />
       </div>
     )
   }
@@ -99,42 +121,50 @@ class Manipulator extends React.Component {
 class Rule extends React.Component {
   constructor(props) {
     super(props);
-    this.state = props.state;
+    this.state = {
+      description: "",
+      manipulators: [Date.now().toString(10)]
+    };
   }
 
   handleDescriptionChange(event) {
     let newState = Object.assign(this.state, {description: event.target.value});
-    this.setState(newState, () =>
-      this.props.update(this.props.listKey, this.state)
-    );
-    
+    this.setState(newState);
   }
 
-  updateManipulator(key, manipulator) {
-    let manipulators = Object.assign({}, this.manipulators);
-    manipulators[key] = manipulator;
-    let newState = Object.assign(this.state, {manipulators: manipulators});
-    this.setState(newState);
+  addManipulator() {
+    let manipulators = this.state.manipulators.slice();
+    manipulators.push(Date.now().toString(10));
+    this.setState(Object.assign(this.state, {manipulators: manipulators}));
+  }
+
+  deleteManipulator(key) {
+    let newManipulators = this.state.manipulators.slice();
+    const index = newManipulators.indexOf(key);
+    if (index !== -1) {
+      newManipulators.splice(index, 1);
+    }
+    this.setState(Object.assign(this.state, {manipulators: newManipulators}));
   }
 
   render() {
     let manipulators = [];
-    for (let key in this.state.manipulators) {
-      manipulators.push(<li key={key}><Manipulator state={this.state.manipulators[key]} /></li>)
+    for (let key of this.state.manipulators) {
+      manipulators.push(<li key={key}><Manipulator delete={this.deleteManipulator.bind(this, key)} /></li>);
     }
     return (
       <div className="rule outlined">
+        <button className="delete-button" onClick={this.props.delete}>&times;</button>
         <h3>Rule</h3>
-        <button className="delete-button" onClick={() => this.props.delete(this.props.listKey)} >
-          &times;
-        </button>
         <label className="form-label">Description</label>
         <input
           className="form-input"
           value={this.state.description}
+          placeholder="Rule description"
           onChange={this.handleDescriptionChange.bind(this)}
         /><br/>
-        <ul>{manipulators}</ul>
+        <ul>{manipulators}</ul><br/>
+        <button className="form-button" onClick={this.addManipulator.bind(this)}>Add Manipulator</button>
       </div>
     );
   }
@@ -144,42 +174,24 @@ class CustomMapping extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: "Custom Title",
-      rules: {}
+      title: "",
+      rules: [Date.now().toString(10)]
     };
-    let manipulators = {};
-    manipulators[Date.now()] = {
-      description: "New Manipulator",
-      key_code: ""
-    };
-    this.state.rules[Date.now()] = {
-      description: "New Rule",
-      manipulators: manipulators
-    };
-  }
-
-  updateRule(key, rule) {
-    console.log("Updating key " + key);
-    let newRules = Object.assign({}, this.state.rules);
-    newRules[key] = rule;
-    let newState = Object.assign(this.state, {rules: newRules});
-    this.setState(newState);
   }
 
   addRule() {
-    const ts = Date.now();
-    let newRules = Object.assign({}, this.state.rules);
-    let rule = {description: "New Rule", manipulators: []};
-    newRules[ts] = rule;
-    let newState = Object.assign(this.state, {rules: newRules});
-    this.setState(newState);
+    let newRules = this.state.rules.slice();
+    newRules.push(Date.now().toString(10));
+    this.setState(Object.assign(this.state, {rules: newRules}));
   }
 
   deleteRule(key) {
-    let newRules = Object.assign({}, this.state.rules);
-    delete newRules[key];
-    let newState = Object.assign(this.state, {rules: newRules});
-    this.setState(newState);
+    let newRules = this.state.rules.slice();
+    const index = newRules.indexOf(key)
+    if (index !== -1) {
+      newRules.splice(index, 1);
+    }
+    this.setState(Object.assign(this.state, {rules: newRules}));
   }
 
   handleTitleChange(event) {
@@ -189,16 +201,12 @@ class CustomMapping extends React.Component {
 
   render() {
     let rules = [];
-    for(let key in this.state.rules) {
+    for(let key of this.state.rules) {
       rules.push(
         <li key={key}>
-          <Rule
-            state={this.state.rules[key]}
-            listKey={key}
-            update={this.updateRule.bind(this)}
-            delete={this.deleteRule.bind(this)}
-          />
-        </li>);
+          <Rule delete={this.deleteRule.bind(this, key)} />
+        </li>
+      );
     }
     return (
       <div className="custom-mapping outlined">
@@ -207,6 +215,7 @@ class CustomMapping extends React.Component {
         <input
           className="form-input"
           value={this.state.title}
+          placeholder="Mapping title"
           onChange={this.handleTitleChange.bind(this)}
         /><br/>
         <ul>{rules}</ul>
