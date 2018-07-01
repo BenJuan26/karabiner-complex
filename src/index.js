@@ -2,6 +2,70 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+class Modifier extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modifier: "control"
+    }
+  }
+
+  render() {
+    return (
+      <div>
+        <select defaultValue="command">
+          <option value="left_command">Left Command</option>
+          <option value="left_control">Left Control</option>
+          <option value="left_option">Left Option</option>
+          <option value="left_shift">Left Shift</option>
+          <option value="right_command">Right Command</option>
+          <option value="right_control">Right Control</option>
+          <option value="right_option">Right Option</option>
+          <option value="right_shift">Right Shift</option>
+          <option value="caps_lock">Caps Lock</option>
+          <option value="fn">Function</option>
+          <option value="command">Command (Left or Right)</option>
+          <option value="control">Control (Left or Right)</option>
+          <option value="option">Option (Left or Right)</option>
+          <option value="shift">Shift (Left or Right)</option>
+          <option value="any">Any</option>
+        </select>
+        <button className="delete-button" onClick={this.props.delete}>&times;</button>
+      </div>
+    )
+  }
+}
+
+class ModifierList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modifiers: []
+    }
+  }
+
+  addModifier() {
+    let newModifiers = this.state.modifiers.slice();
+    newModifiers.push(Date.now().toString(10));
+    this.setState(Object.assign(this.state, {modifiers: newModifiers}), () => console.log(JSON.stringify(this.state)));
+  }
+
+  render() {
+    let heading = <h3>{this.props.type === "mandatory" ? "Mandatory" : "Optional"} Modifiers</h3>;
+    let modifiers = [];
+    for (let key of this.state.modifiers) {
+      modifiers.push(<li key={key}><Modifier /></li>);
+    }
+    return (
+      <div className="modifier-list outlined">
+        {heading}
+        <ul>{modifiers}</ul>
+        <button onClick={this.addModifier.bind(this)}>Add Modifier</button>
+      </div>
+    )
+  }
+}
+
 class From extends React.Component {
   constructor(props) {
     super(props);
@@ -22,7 +86,6 @@ class From extends React.Component {
         newState[key] = "";
       }
     }
-    console.log(JSON.stringify(newState));
     this.setState(newState);
   }
 
@@ -44,7 +107,6 @@ class From extends React.Component {
   }
 
   render() {
-    console.log(JSON.stringify(this.state));
     let actualKey = "";
     let possibleKeys = ["key_code", "consumer_key_code", "pointing_button", "any"];
     for (let key of possibleKeys) {
@@ -80,7 +142,11 @@ class From extends React.Component {
           <option value="pointing_button">Pointing Button</option>
           <option value="any">Any</option>
         </select>
-        {keyInput}
+        {keyInput}<br/>
+        <ModifierList type="mandatory" /><br/>
+        <ModifierList type="optional" /><br/>
+        <button>Add Simultaneous</button><br/>
+        <button>Add Simultaneous Options</button>
       </div>
     )
   }
@@ -103,7 +169,7 @@ class Manipulator extends React.Component {
   render() {
     return (
       <div className="manipulator outlined">
-        <button className="delete-button" onClick={this.props.delete}>&times;</button>
+        <button className="delete-button delete-button-float-right" onClick={this.props.delete}>&times;</button>
         <h3>Manipulator</h3>
         <label className="form-label">Description</label>
         <input
@@ -154,7 +220,7 @@ class Rule extends React.Component {
     }
     return (
       <div className="rule outlined">
-        <button className="delete-button" onClick={this.props.delete}>&times;</button>
+        <button className="delete-button delete-button-float-right" onClick={this.props.delete}>&times;</button>
         <h3>Rule</h3>
         <label className="form-label">Description</label>
         <input

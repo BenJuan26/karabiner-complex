@@ -2,6 +2,11 @@ body {
     font: 14px sans-serif;
 }
 
+.custom-mapping {
+    width: 800px;
+    margin: auto;
+}
+
 .outlined {
     border-style: solid;
     border-width: 1px;
@@ -35,6 +40,10 @@ li {
 }
 
 .delete-button {
+    padding: 0;
+}
+
+.delete-button-float-right {
     display: block;
     float: right;
 }
