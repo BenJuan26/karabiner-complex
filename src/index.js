@@ -15,18 +15,19 @@ class ToEvent extends React.Component {
       <div className="event outlined">
         <button className="delete-button delete-button-float-right" onClick={this.props.delete} title="Delete Event">&times;</button>
         <h3>Event</h3>
-        <select>
+        <select className="form-select">
           <option value="key_code">Key Code</option>
           <option value="consumer_key_code">Consumer Key Code</option>
           <option value="pointing_button">Pointing Button</option>
           <option value="shell_command">Shell Command</option>
           <option value="select_input_source">Select Input Source</option>
           <option value="set_variable">Set Variable</option>
-        </select><br/>
-        <input type="checkbox"/><label>Lazy</label><br/>
-        <input type="checkbox" checked/><label>Repeat</label><br/>
-        <input type="checkbox"/><label>Halt</label><br/>
-        <input type="number" min="0" defaultValue="0"/><label>Hold Down Milliseconds</label>
+        </select><input className="form-input" placeholder="Value" /><br/>
+        <ModifierList type="to" />
+        <input type="checkbox" className="form-checkbox"/><label>Lazy</label><br/>
+        <input type="checkbox" className="form-checkbox" defaultChecked/><label>Repeat</label><br/>
+        <input type="checkbox" className="form-checkbox"/><label>Halt</label><br/>
+        <input type="number" className="form-input" min="0" defaultValue="0"/><label>Hold Down Milliseconds</label>
       </div>
     )
   }
@@ -90,7 +91,7 @@ class ToEventList extends React.Component {
       <div className="to outlined">
         <h3>{title}</h3>
         <ul>{events}</ul>
-        <button onClick={this.addEvent.bind(this)}>Add Event</button>
+        <button className="form-button" onClick={this.addEvent.bind(this)}>Add Event</button>
       </div>
     )
   }
@@ -98,6 +99,14 @@ class ToEventList extends React.Component {
 
 class Modifier extends React.Component {
   render() {
+    let optionalMods = [];
+    if (this.props.type === "mandatory" || this.props.type === "optional") {
+      optionalMods.push(<option value="command">Command (Left or Right)</option>);
+      optionalMods.push(<option value="control">Control (Left or Right)</option>);
+      optionalMods.push(<option value="option">Option (Left or Right)</option>);
+      optionalMods.push(<option value="shift">Shift (Left or Right)</option>);
+      optionalMods.push(<option value="any">Any</option>);
+    }
     return (
       <div>
         <select defaultValue="command">
@@ -111,11 +120,7 @@ class Modifier extends React.Component {
           <option value="right_shift">Right Shift</option>
           <option value="caps_lock">Caps Lock</option>
           <option value="fn">Function</option>
-          <option value="command">Command (Left or Right)</option>
-          <option value="control">Control (Left or Right)</option>
-          <option value="option">Option (Left or Right)</option>
-          <option value="shift">Shift (Left or Right)</option>
-          <option value="any">Any</option>
+          {optionalMods}
         </select>
         <button className="delete-button" onClick={this.props.delete} title="Delete Modifier Key">&times;</button>
       </div>
@@ -147,10 +152,16 @@ class ModifierList extends React.Component {
   }
 
   render() {
-    let heading = <h3>{this.props.type === "mandatory" ? "Mandatory" : "Optional"} Modifiers</h3>;
+    let prefix = "";
+    if (this.props.type === "mandatory") {
+      prefix = "Mandatory ";
+    } else if (this.props.type === "optional") {
+      prefix = "Optional ";
+    }
+    let heading = <h3>{prefix}Modifiers</h3>;
     let modifiers = [];
     for (let key of this.state.modifiers) {
-      modifiers.push(<li key={key}><Modifier delete={this.deleteModifier.bind(this, key)} /></li>);
+      modifiers.push(<li key={key}><Modifier type={this.props.type} delete={this.deleteModifier.bind(this, key)} /></li>);
     }
     return (
       <div className="modifier-list outlined">
@@ -284,7 +295,6 @@ class Manipulator extends React.Component {
         <ToEventList type="if_alone" /><br/>
         <ToEventList type="if_held_down" /><br/>
         <ToEventList type="after_key_up" /><br/>
-        <button>Add To</button>
       </div>
     )
   }
