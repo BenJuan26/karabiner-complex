@@ -2,14 +2,101 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-class Modifier extends React.Component {
+class ToEvent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      modifier: "control"
+      key_code: ""
     }
   }
 
+  render() {
+    return (
+      <div className="event outlined">
+        <button className="delete-button delete-button-float-right" onClick={this.props.delete} title="Delete Event">&times;</button>
+        <h3>Event</h3>
+        <select>
+          <option value="key_code">Key Code</option>
+          <option value="consumer_key_code">Consumer Key Code</option>
+          <option value="pointing_button">Pointing Button</option>
+          <option value="shell_command">Shell Command</option>
+          <option value="select_input_source">Select Input Source</option>
+          <option value="set_variable">Set Variable</option>
+        </select><br/>
+        <input type="checkbox"/><label>Lazy</label><br/>
+        <input type="checkbox" checked/><label>Repeat</label><br/>
+        <input type="checkbox"/><label>Halt</label><br/>
+        <input type="number" min="0" defaultValue="0"/><label>Hold Down Milliseconds</label>
+      </div>
+    )
+  }
+}
+
+class ToEventList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      events: []
+    }
+  }
+
+  addEvent() {
+    let newEvents = this.state.events.slice();
+    newEvents.push(Date.now().toString(10));
+    this.setState(Object.assign(this.state, {events: newEvents}));
+  }
+
+  deleteEvent(key) {
+    let newEvents = this.state.events.slice();
+    const index = newEvents.indexOf(key);
+    if (index !== -1) {
+      newEvents.splice(index, 1);
+    }
+    this.setState(Object.assign(this.state, {events: newEvents}));
+  }
+
+  render() {
+    let title = "";
+    switch (this.props.type) {
+      case "if_alone":
+      title = "To If Alone";
+      break;
+
+      case "if_held_down":
+      title = "To If Held Down";
+      break;
+
+      case "after_key_up":
+      title = "To After Key Up";
+      break;
+
+      case "if_invoked":
+      title = "To If Invoked";
+      break;
+
+      case "if_canceled":
+      title = "To If Canceled";
+      break;
+
+      default:
+      title = "To";
+      break;
+    }
+    let events = [];
+    for (let key of this.state.events) {
+      events.push(<li key={key}><ToEvent delete={this.deleteEvent.bind(this, key)}/></li>)
+    }
+    return (
+      <div className="to outlined">
+        <h3>{title}</h3>
+        <ul>{events}</ul>
+        <button onClick={this.addEvent.bind(this)}>Add Event</button>
+      </div>
+    )
+  }
+}
+
+class Modifier extends React.Component {
   render() {
     return (
       <div>
@@ -30,7 +117,7 @@ class Modifier extends React.Component {
           <option value="shift">Shift (Left or Right)</option>
           <option value="any">Any</option>
         </select>
-        <button className="delete-button" onClick={this.props.delete}>&times;</button>
+        <button className="delete-button" onClick={this.props.delete} title="Delete Modifier Key">&times;</button>
       </div>
     )
   }
@@ -47,14 +134,23 @@ class ModifierList extends React.Component {
   addModifier() {
     let newModifiers = this.state.modifiers.slice();
     newModifiers.push(Date.now().toString(10));
-    this.setState(Object.assign(this.state, {modifiers: newModifiers}), () => console.log(JSON.stringify(this.state)));
+    this.setState(Object.assign(this.state, {modifiers: newModifiers}));
+  }
+
+  deleteModifier(key) {
+    let newModifiers = this.state.modifiers.slice();
+    const index = newModifiers.indexOf(key);
+    if (index !== -1) {
+      newModifiers.splice(index, 1);
+    }
+    this.setState(Object.assign(this.state, {modifiers: newModifiers}));
   }
 
   render() {
     let heading = <h3>{this.props.type === "mandatory" ? "Mandatory" : "Optional"} Modifiers</h3>;
     let modifiers = [];
     for (let key of this.state.modifiers) {
-      modifiers.push(<li key={key}><Modifier /></li>);
+      modifiers.push(<li key={key}><Modifier delete={this.deleteModifier.bind(this, key)} /></li>);
     }
     return (
       <div className="modifier-list outlined">
@@ -66,7 +162,7 @@ class ModifierList extends React.Component {
   }
 }
 
-class From extends React.Component {
+class FromEvent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -157,6 +253,7 @@ class Manipulator extends React.Component {
     super(props);
     this.state = {
       description: "",
+      to: false
     };
   }
 
@@ -166,10 +263,14 @@ class Manipulator extends React.Component {
     this.setState(newState);
   }
 
+  addTo() {
+
+  }
+
   render() {
     return (
       <div className="manipulator outlined">
-        <button className="delete-button delete-button-float-right" onClick={this.props.delete}>&times;</button>
+        <button className="delete-button delete-button-float-right" onClick={this.props.delete} title="Delete Rule">&times;</button>
         <h3>Manipulator</h3>
         <label className="form-label">Description</label>
         <input
@@ -178,7 +279,12 @@ class Manipulator extends React.Component {
           placeholder="Manipulator description"
           onChange={this.handleDescriptionChange.bind(this)}
         /><br/>
-        <From />
+        <FromEvent /><br/>
+        <ToEventList /><br/>
+        <ToEventList type="if_alone" /><br/>
+        <ToEventList type="if_held_down" /><br/>
+        <ToEventList type="after_key_up" /><br/>
+        <button>Add To</button>
       </div>
     )
   }
@@ -220,7 +326,7 @@ class Rule extends React.Component {
     }
     return (
       <div className="rule outlined">
-        <button className="delete-button delete-button-float-right" onClick={this.props.delete}>&times;</button>
+        <button className="delete-button delete-button-float-right" onClick={this.props.delete} title="Delete Rule">&times;</button>
         <h3>Rule</h3>
         <label className="form-label">Description</label>
         <input
