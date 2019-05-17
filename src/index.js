@@ -12,9 +12,9 @@ class ToEvent extends React.Component {
 
   render() {
     return (
-      <div className="event outlined">
+      <fieldset className="event">
+        <legend>Event</legend>
         <button className="delete-button delete-button-float-right" onClick={this.props.delete} title="Delete Event">&times;</button>
-        <h3>Event</h3>
         <select className="form-select">
           <option value="key_code">Key Code</option>
           <option value="consumer_key_code">Consumer Key Code</option>
@@ -28,7 +28,7 @@ class ToEvent extends React.Component {
         <input type="checkbox" className="form-checkbox" defaultChecked/><label>Repeat</label><br/>
         <input type="checkbox" className="form-checkbox"/><label>Halt</label><br/>
         <input type="number" className="form-input" min="0" defaultValue="0"/><label>Hold Down Milliseconds</label>
-      </div>
+      </fieldset>
     )
   }
 }
@@ -88,11 +88,11 @@ class ToEventList extends React.Component {
       events.push(<li key={key}><ToEvent delete={this.deleteEvent.bind(this, key)}/></li>)
     }
     return (
-      <div className="to outlined">
-        <h3>{title}</h3>
+      <fieldset className="to">
+        <legend>{title}</legend>
         <ul>{events}</ul>
         <button className="form-button" onClick={this.addEvent.bind(this)}>Add Event</button>
-      </div>
+      </fieldset>
     )
   }
 }
@@ -158,17 +158,17 @@ class ModifierList extends React.Component {
     } else if (this.props.type === "optional") {
       prefix = "Optional ";
     }
-    let heading = <h3>{prefix}Modifiers</h3>;
+    let heading = <legend>{prefix}Modifiers</legend>;
     let modifiers = [];
     for (let key of this.state.modifiers) {
       modifiers.push(<li key={key}><Modifier type={this.props.type} delete={this.deleteModifier.bind(this, key)} /></li>);
     }
     return (
-      <div className="modifier-list outlined">
+      <fieldset className="modifier-list">
         {heading}
         <ul>{modifiers}</ul>
         <button onClick={this.addModifier.bind(this)}>Add Modifier</button>
-      </div>
+      </fieldset>
     )
   }
 }
@@ -241,8 +241,8 @@ class FromEvent extends React.Component {
         />
     }
     return (
-      <div className="from outlined">
-        <h3>From</h3>
+      <fieldset className="from">
+        <legend>From</legend>
         <select className="form-select" onChange={this.handleKeyChange.bind(this)}>
           <option value="key_code">Key Code</option>
           <option value="consumer_key_code">Consumer Key Code</option>
@@ -254,7 +254,7 @@ class FromEvent extends React.Component {
         <ModifierList type="optional" /><br/>
         <button>Add Simultaneous</button><br/>
         <button>Add Simultaneous Options</button>
-      </div>
+      </fieldset>
     )
   }
 }
@@ -272,9 +272,9 @@ class Manipulator extends React.Component {
 
   render() {
     return (
-      <div className="manipulator outlined">
+      <fieldset className="manipulator">
+        <legend>Manipulator</legend>
         <button className="delete-button delete-button-float-right" onClick={this.props.delete} title="Delete Rule">&times;</button>
-        <h3>Manipulator</h3>
         <label className="form-label">Description</label>
         <input
           className="form-input"
@@ -287,7 +287,7 @@ class Manipulator extends React.Component {
         <ToEventList type="if_alone" /><br/>
         <ToEventList type="if_held_down" /><br/>
         <ToEventList type="after_key_up" /><br/>
-      </div>
+      </fieldset>
     )
   }
 }
@@ -323,9 +323,9 @@ class Rule extends React.Component {
       manipulators.push(<li key={key}><Manipulator id={key} delete={this.deleteManipulator.bind(this, key)} onUpdate={this.updateManipulator.bind(this)} content={value}/></li>);
     }
     return (
-      <div className="rule outlined">
+      <fieldset className="rule">
+        <legend>Rule</legend>
         <button className="delete-button delete-button-float-right" onClick={this.props.delete} title="Delete Rule">&times;</button>
-        <h3>Rule</h3>
         <label className="form-label">Description</label>
         <input
           className="form-input"
@@ -335,7 +335,7 @@ class Rule extends React.Component {
         /><br/>
         <ul>{manipulators}</ul><br/>
         <button className="form-button" onClick={this.addManipulator.bind(this)}>Add Manipulator</button>
-      </div>
+      </fieldset>
     );
   }
 }
@@ -401,8 +401,8 @@ class CustomMapping extends React.Component {
       );
     }
     return (
-      <div className="custom-mapping outlined">
-        <h3>Custom Complex Mapping</h3>
+      <fieldset className="custom-mapping">
+        <legend>Custom Complex Mapping</legend>
         <label className="form-label">Title</label>
         <input
           className="form-input"
@@ -412,7 +412,7 @@ class CustomMapping extends React.Component {
         /><br/>
         <ul>{rules}</ul>
         <button onClick={this.addRule.bind(this)}>Add Rule</button>
-      </div>
+      </fieldset>
     );
   }
 }
