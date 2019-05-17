@@ -260,18 +260,10 @@ class FromEvent extends React.Component {
 }
 
 class Manipulator extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      description: "",
-      to: false
-    };
-  }
-
   handleDescriptionChange(event) {
-    let newState = Object.assign({}, this.state);
-    newState.description = event.target.value;
-    this.setState(newState);
+    let newContent = Object.assign({}, this.props.content);
+    newContent.description = event.target.value;
+    this.props.onUpdate(this.props.id, newContent);
   }
 
   addTo() {
@@ -286,7 +278,7 @@ class Manipulator extends React.Component {
         <label className="form-label">Description</label>
         <input
           className="form-input"
-          value={this.state.description}
+          value={this.props.content.description}
           placeholder="Manipulator description"
           onChange={this.handleDescriptionChange.bind(this)}
         /><br/>
@@ -307,22 +299,28 @@ class Rule extends React.Component {
     this.props.onUpdate(this.props.id, newContent);
   }
 
+  updateManipulator(id, manipulator) {
+    let newContent = Object.assign({}, this.props.content);
+    newContent.manipulators[id] = manipulator;
+    this.props.onUpdate(this.props.id, newContent);
+  }
+
   addManipulator() {
-    let manipulators = Object.assign({}, this.state.manipulators);
-    manipulators[Date.now().toString(10)] = {};
-    this.setState(Object.assign(this.state, {manipulators: manipulators}));
+    let newContent = Object.assign({}, this.props.content);
+    newContent.manipulators[Date.now().toString(10)] = newManipulator();
+    this.props.onUpdate(this.props.id, newContent);
   }
 
   deleteManipulator(key) {
-    let newManipulators = Object.assign({}, this.state.manipulators);
-    delete newManipulators[key];
-    this.setState(Object.assign(this.state, {manipulators: newManipulators}));
+    let newContent = Object.assign({}, this.props.content);
+    delete newContent.manipulators[key];
+    this.props.onUpdate(this.props.id, newContent);
   }
 
   render() {
     let manipulators = [];
-    for (const [key] of Object.entries(this.props.content.manipulators)) {
-      manipulators.push(<li key={key}><Manipulator delete={this.deleteManipulator.bind(this, key)} /></li>);
+    for (const [key, value] of Object.entries(this.props.content.manipulators)) {
+      manipulators.push(<li key={key}><Manipulator id={key} delete={this.deleteManipulator.bind(this, key)} onUpdate={this.updateManipulator.bind(this)} content={value}/></li>);
     }
     return (
       <div className="rule outlined">
@@ -343,7 +341,10 @@ class Rule extends React.Component {
 }
 
 function newManipulator() {
-  return {}
+  return {
+    description: "",
+    to: false
+  };
 }
 
 function newRule() {
