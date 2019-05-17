@@ -2,6 +2,73 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+class Condition extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      type: "frontmost_application_if"
+    }
+  }
+
+  render() {
+    return (
+      <div className="condition outlined">
+      <button className="delete-button delete-button-float-right" title="Delete Condition" onClick={this.props.delete}>&times;</button>
+        <select className="form-select">
+          <option value="frontmost_application_if">Frontmost Application If</option>
+          <option value="frontmost_application_unless">Frontmost Application Unless</option>
+          <option value="device_if">Device If</option>
+          <option value="device_unless">Device Unless</option>
+          <option value="keyboard_type_if">Keyboard Type If</option>
+          <option value="keyboard_type_unless">Keyboard Type Unless</option>
+          <option value="input_source_if">Input Source If</option>
+          <option value="input_source_unless">Input Source Unless</option>
+          <option value="variable_if">Variable If</option>
+          <option value="variable_unless">Variable Unless</option>
+        </select>
+      </div>
+    )
+  }
+}
+
+class ConditionList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      conditions: []
+    }
+  }
+
+  addCondition() {
+    let newConditions = this.state.conditions.slice();
+    newConditions.push(Date.now().toString(10));
+    this.setState(Object.assign(this.state, {conditions: newConditions}));
+  }
+
+  deleteCondition(key) {
+    let newConditions = this.state.conditions.slice();
+    const index = newConditions.indexOf(key);
+    if (index !== -1) {
+      newConditions.splice(index, 1);
+    }
+    this.setState(Object.assign(this.state, {conditions: newConditions}));
+  }
+
+  render() {
+    let conditions = [];
+    for (let key of this.state.conditions) {
+      conditions.push(<li key={key}><Condition delete={this.deleteCondition.bind(this, key)} /></li>);
+    }
+    return (
+      <div className="condition-list outlined">
+        <h3>Conditions</h3>
+        <ul>{conditions}</ul>
+        <button className="form-button" onClick={this.addCondition.bind(this)}>Add Condition</button>
+      </div>
+    )
+  }
+}
+
 class ToEvent extends React.Component {
   constructor(props) {
     super(props);
@@ -101,11 +168,11 @@ class Modifier extends React.Component {
   render() {
     let optionalMods = [];
     if (this.props.type === "mandatory" || this.props.type === "optional") {
-      optionalMods.push(<option value="command">Command (Left or Right)</option>);
-      optionalMods.push(<option value="control">Control (Left or Right)</option>);
-      optionalMods.push(<option value="option">Option (Left or Right)</option>);
-      optionalMods.push(<option value="shift">Shift (Left or Right)</option>);
-      optionalMods.push(<option value="any">Any</option>);
+      optionalMods.push(<option value="command" key={optionalMods.length}>Command (Left or Right)</option>);
+      optionalMods.push(<option value="control" key={optionalMods.length}>Control (Left or Right)</option>);
+      optionalMods.push(<option value="option" key={optionalMods.length}>Option (Left or Right)</option>);
+      optionalMods.push(<option value="shift" key={optionalMods.length}>Shift (Left or Right)</option>);
+      optionalMods.push(<option value="any" key={optionalMods.length}>Any</option>);
     }
     return (
       <div>
@@ -177,6 +244,7 @@ class FromEvent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      description: "",
       key_code: ""
     };
   }
@@ -199,7 +267,13 @@ class FromEvent extends React.Component {
   handleAnyKeyChange(event) {
     let newState = Object.assign({}, this.state);
     newState.any = event.target.value;
-    this.setState(newState);
+    this.setState(Object.assign(this.state, {any: newState.any}));
+  }
+
+  handleDescriptionChange(event) {
+    let newState = Object.assign({}, this.state);
+    newState.description = event.target.value;
+    this.setState(Object.assign(this.state, {description: newState.description}));
   }
 
   updateKeyCode(event) {
@@ -243,6 +317,12 @@ class FromEvent extends React.Component {
     return (
       <fieldset className="from">
         <legend>From</legend>
+        <label className="form-label">Description</label>
+        <input
+          className="form-input"
+          onChange={this.handleDescriptionChange.bind(this)}
+          placeholder="From Event Description"
+        /><br/>
         <select className="form-select" onChange={this.handleKeyChange.bind(this)}>
           <option value="key_code">Key Code</option>
           <option value="consumer_key_code">Consumer Key Code</option>
@@ -266,10 +346,6 @@ class Manipulator extends React.Component {
     this.props.onUpdate(this.props.id, newContent);
   }
 
-  addTo() {
-
-  }
-
   render() {
     return (
       <fieldset className="manipulator">
@@ -287,7 +363,9 @@ class Manipulator extends React.Component {
         <ToEventList type="if_alone" /><br/>
         <ToEventList type="if_held_down" /><br/>
         <ToEventList type="after_key_up" /><br/>
+        <ConditionList /><br/>
       </fieldset>
+
     )
   }
 }
