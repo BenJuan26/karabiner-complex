@@ -301,37 +301,27 @@ class Manipulator extends React.Component {
 }
 
 class Rule extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      description: "",
-      manipulators: [Date.now().toString(10)]
-    };
-  }
-
   handleDescriptionChange(event) {
-    let newState = Object.assign(this.state, {description: event.target.value});
-    this.setState(newState);
+    let newContent = Object.assign({}, this.props.content);
+    newContent.description = event.target.value;
+    this.props.onUpdate(this.props.id, newContent);
   }
 
   addManipulator() {
-    let manipulators = this.state.manipulators.slice();
-    manipulators.push(Date.now().toString(10));
+    let manipulators = Object.assign({}, this.state.manipulators);
+    manipulators[Date.now().toString(10)] = {};
     this.setState(Object.assign(this.state, {manipulators: manipulators}));
   }
 
   deleteManipulator(key) {
-    let newManipulators = this.state.manipulators.slice();
-    const index = newManipulators.indexOf(key);
-    if (index !== -1) {
-      newManipulators.splice(index, 1);
-    }
+    let newManipulators = Object.assign({}, this.state.manipulators);
+    delete newManipulators[key];
     this.setState(Object.assign(this.state, {manipulators: newManipulators}));
   }
 
   render() {
     let manipulators = [];
-    for (let key of this.state.manipulators) {
+    for (const [key] of Object.entries(this.props.content.manipulators)) {
       manipulators.push(<li key={key}><Manipulator delete={this.deleteManipulator.bind(this, key)} /></li>);
     }
     return (
@@ -341,7 +331,7 @@ class Rule extends React.Component {
         <label className="form-label">Description</label>
         <input
           className="form-input"
-          value={this.state.description}
+          value={this.props.content.description}
           placeholder="Rule description"
           onChange={this.handleDescriptionChange.bind(this)}
         /><br/>
@@ -352,27 +342,46 @@ class Rule extends React.Component {
   }
 }
 
+function newManipulator() {
+  return {}
+}
+
+function newRule() {
+  return {
+    description: "",
+    manipulators: {
+      [Date.now().toString(10)]: newManipulator()
+    }
+  }
+}
+
 class CustomMapping extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       title: "",
-      rules: [Date.now().toString(10)]
+      rules: {
+        [Date.now().toString(10)]: newRule()
+      }
     };
+    console.log(this.state);
+  }
+
+  updateRule(id, rule) {
+    let newRules = Object.assign({}, this.state.rules);
+    newRules[id] = rule;
+    this.setState(Object.assign({}, {rules: newRules}));
   }
 
   addRule() {
-    let newRules = this.state.rules.slice();
-    newRules.push(Date.now().toString(10));
+    let newRules = Object.assign({}, this.state.rules);
+    newRules[Date.now().toString(10)] = newRule();
     this.setState(Object.assign(this.state, {rules: newRules}));
   }
 
   deleteRule(key) {
-    let newRules = this.state.rules.slice();
-    const index = newRules.indexOf(key)
-    if (index !== -1) {
-      newRules.splice(index, 1);
-    }
+    let newRules = Object.assign({}, this.state.rules);
+    delete newRules[key];
     this.setState(Object.assign(this.state, {rules: newRules}));
   }
 
@@ -383,10 +392,10 @@ class CustomMapping extends React.Component {
 
   render() {
     let rules = [];
-    for(let key of this.state.rules) {
+    for(const [key, value] of Object.entries(this.state.rules)) {
       rules.push(
         <li key={key}>
-          <Rule delete={this.deleteRule.bind(this, key)} />
+          <Rule id={key} delete={this.deleteRule.bind(this, key)} content={value} onUpdate={this.updateRule.bind(this)}/>
         </li>
       );
     }
